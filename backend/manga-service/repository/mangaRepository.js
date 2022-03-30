@@ -24,12 +24,13 @@ class mangaRepository extends BaseRepository{
       options.include = [
           { model: manga_title, as: 'manga_title', attributes: ['id', 'title', 'date_posted']},
       ];
-      
+
       return this.model.findAndCountAll(options);
    }
 
    findMangaByTitleId(manga_title_id, fields) {
       const options = {
+         order: [['id', 'DESC']],
          where: { manga_title_id },
       };
 

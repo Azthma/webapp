@@ -42,6 +42,31 @@ class mangaTitleRepository extends BaseRepository{
       
         return this.model.findAll(options);
     }
+
+    findAllMangaTopics(fields) {
+        const options = {};
+
+        if (!!fields && fields) {
+            options.attributes = fields;
+        }
+      
+        return this.model.findAndCountAll(options);
+    }
+
+    searchMangaTopic(fields) {
+        const search = fields.search || "";
+        const options = {
+            where: {
+                title: {
+                    [Op.like]: `%${search}%`,
+                }
+            }
+        };
+
+        options.attributes = fields;
+      
+        return this.model.findAndCountAll(options);
+    }
 }
 
 module.exports = new mangaTitleRepository(mangaTitle);

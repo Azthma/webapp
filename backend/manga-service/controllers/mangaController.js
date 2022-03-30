@@ -11,49 +11,49 @@ class mangaController {
 
   async addManga(req, res, next) {
     try{
-        if (req.file == undefined) {
+      if (req.file == undefined) {
+        return res.json({
+          created: false,
+          message: "You must select a file.",
+        })
+      }
+      const errors = validationResult(req);
+      if(errors.errors != ''){
+        return res.json({
+          errors
+        })
+      }
+      const { ...defaults } = req.body;
+      const manga = await mangaTitleRepository.findByTitle(defaults.title);
+      if(!!manga && manga.status != 1){
+        await mangaRepository.create({
+          manga_title_id: !manga ? null : manga.id,
+          name: defaults.name,
+          synopsis: defaults.synopsis,
+          author: defaults.author,
+          artist: defaults.artist,
+          genre: defaults.genre,
+          picture_name: req.file.filename,
+          picture: fs.readFileSync(
+            __basedir + "/resources/" + req.file.filename
+          ),
+        }).then(() => {
           return res.json({
-            created: false,
-            message: "You must select a file.",
+            created: true,
+            message: "Success."
           })
-        }
-        const errors = validationResult(req);
-        if(errors.errors != ''){
-          return res.json({
-            errors
-          })
-        }
-        const { ...defaults } = req.body;
-        const manga = await mangaTitleRepository.findByTitle(defaults.title);
-        if(!!manga && manga.status != 1){
-          await mangaRepository.create({
-            manga_title_id: !manga ? null : manga.id,
-            name: defaults.name,
-            synopsis: defaults.synopsis,
-            author: defaults.author,
-            artist: defaults.artist,
-            genre: defaults.genre,
-            picture_name: req.file.filename,
-            picture: fs.readFileSync(
-              __basedir + "/resources/" + req.file.filename
-            ),
-          }).then(() => {
-            return res.json({
-              created: true,
-              message: "Success."
-            })
-          });
-        }
-        else{
-            return res.json({
-                data: false,
-                message: "title already in use, please use a different title.",
-            })
-        }
+        });
+      }
+      else{
+        return res.json({
+          data: false,
+          message: "title already in use, please use a different title.",
+        })
+      }
     }
     catch(error){
-        console.log('error', error)
-        return res.sendStatus(500)
+      console.log('error', error)
+      return res.sendStatus(500)
     }
   }
 
@@ -70,21 +70,21 @@ class mangaController {
       if(!manga){
         const data = await mangaTitleRepository.create(defaults);
         return res.json({
-            created: true,
-            message: "success.",
-            data: data
+          created: true,
+          message: "success.",
+          data: data
         })
       }
       else{
         return res.json({
-            data: false,
-            message: "title already in use.",
+          data: false,
+          message: "title already in use.",
         })
       }
     }
     catch(error){
-        console.log('error', error)
-        return res.sendStatus(500)
+      console.log('error', error)
+      return res.sendStatus(500)
     }
   }
 
@@ -120,6 +120,27 @@ class mangaController {
   async getAllManga(req, res, next) {
     try {
       const manga = await mangaRepository.findAllManga();
+      if(!!manga){
+          return res.json({
+              count: manga.length,
+              rows: manga
+          })
+      }
+      else{
+          return res.json({
+              data: false,
+              message: "user not found",
+          })
+      }
+    } catch (error) {
+        console.log('error', error)
+        return res.sendStatus(500)
+    }
+  }
+
+  async getAllMangaTitles(req, res, next) {
+    try {
+      const manga = await mangaTitleRepository.findAllMangaTopics();
       if(!!manga){
           return res.json({
               count: manga.length,
@@ -209,6 +230,27 @@ class mangaController {
     } catch (error) {
       console.log('error', error)
       return res.json(error)
+    }
+  }
+
+  async searchMangaTopic(req, res, next) {
+    try {
+      const manga = await mangaTitleRepository.searchMangaTopic(req.query);
+      if(!!manga){
+          return res.json({
+              count: manga.length,
+              rows: manga
+          })
+      }
+      else{
+          return res.json({
+              data: false,
+              message: "user not found",
+          })
+      }
+    } catch (error) {
+        console.log('error', error)
+        return res.sendStatus(500)
     }
   }
 

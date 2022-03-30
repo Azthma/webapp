@@ -21,6 +21,8 @@ module.exports = function(app) {
     app.post('/manga-title/add', addMangaTitleRules(), manga.addMangaTitle);
     app.put('/manga-title/update/:id', updateMangaTitleRules(), manga.updateMangaTitle);
     app.get('/manga/topic/latest', manga.getLatestMangaTopic);
+    app.get('/manga-titles', manga.getAllMangaTitles);
+    app.get('/manga-titles/search', manga.searchMangaTopic);
 
     /* can't access this routes if no jwt */
     app.use(
