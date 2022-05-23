@@ -1,6 +1,7 @@
 const manga = require('../controllers/mangaController');
 const upload = require("../middleware/mangaUpload");
 const { addMangaRules, updateMangaRules, addMangaTitleRules, updateMangaTitleRules } = require('../middleware/rules');
+const { adminOnly, userAllowed } = require('../shared/middleware/validate');
 var expressJwt = require('express-jwt');
 
 module.exports = function(app) {
